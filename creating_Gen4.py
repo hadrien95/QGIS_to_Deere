@@ -389,7 +389,7 @@ class Gen4FromShp:
         except ValueError:
             self.gdf_lines.geometry = self.gdf_lines.geometry.to_crs(4326)
 
-        self.gdf_lines = gpd.overlay(self.gdf_lines, self.gdf_fields, keep_geom_type=False)
+        # self.gdf_lines = gpd.overlay(self.gdf_lines, self.gdf_fields, keep_geom_type=False)
         self.gdf_lines = gdf_multi_single_line(df=self.gdf_lines)
         self.gdf_lines = self.gdf_lines.reset_index()
         if self.line_column in self.gdf_lines.columns.to_list():
@@ -979,15 +979,15 @@ class CreateElement(Gen4FromShp):
         # AB Curve
         if bool_ABCurve and not gdf_ab_curve.empty:
 
-            # Count point
-            first_step = True
+            # Each curve in its own Guidance/Tracks element and file
             for i in range(gdf_ab_curve.shape[0]):
-
                 name_ab_curve = f'ABCurve-{diacritic(gdf_ab_curve["ID_line"].iloc[i])}'
                 string_gui = unique_id(name_ab_curve + self.id_process)
                 path_adaptive = 'ABCurve' + string_gui + '.gjson'
 
+                # Create a new ABCurve element for each line
                 element_ab_curve = [x for x in element_tracks.findall('ABCurve')][0]
+                element_ab_curve = deepcopy(element_ab_curve)
                 element_ab_curve.attrib['SourceNode'] = self.source_node
                 element_ab_curve.attrib['Name'] = name_ab_curve
                 element_ab_curve.attrib['TaggedEntity'] = self.id_field
@@ -1012,23 +1012,14 @@ class CreateElement(Gen4FromShp):
                 element_heading.attrib['Value'] = str(gdf_ab_curve['length'].iloc[i])
                 dict_output['ABCurve'] = path_adaptive
 
-                # If create Guidance element
-                if bool_Guidance:
-                    element_guidance_own = ET.Element('Guidance')
-                    element_tracks_own = ET.SubElement(element_guidance_own, 'Tracks')
-                    element_tracks_own.append(element_ab_curve)
-                    element.append(element_guidance_own)
-                    bool_Guidance = False
-                else:
-                    if first_step:
-                        element_guidance_own = [x for x in element.findall('Guidance')][0]
-                        element_tracks_own = [x for x in element_guidance_own.findall('Tracks')][0]
-                        first_step = False
+                # Create a new Guidance element for each curve
+                element_guidance_own = ET.Element('Guidance')
+                element_tracks_own = ET.SubElement(element_guidance_own, 'Tracks')
+                element_tracks_own.append(element_ab_curve)
+                element.append(element_guidance_own)
 
-                    element_tracks_own.append(deepcopy(element_ab_curve))
-
-                    # Create Adaptive Line to json
-                super().create_geojson_ab_curve(dict_output['ABCurve'], gdf_ab_curve)
+                # Create Adaptive Line to json for each curve
+                super().create_geojson_ab_curve(dict_output['ABCurve'], gdf_ab_curve.iloc[[i]])
 
         else:
             pass

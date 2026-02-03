@@ -1,0 +1,10 @@
+<ABCurve>
+    <Geometry>
+        <FilenameWithExtension></FilenameWithExtension>
+    </Geometry>
+    <APoint Latitude="0" Longitude="0" />
+    <BPoint Latitude="0" Longitude="0" />
+    <Heading Value="0" />
+    <ReferenceLatitude Value="0" />
+    <ReferenceLongitude Value="0" />
+</ABCurve>
