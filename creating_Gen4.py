@@ -987,7 +987,7 @@ class CreateElement(Gen4FromShp):
                 string_gui = unique_id(name_ab_curve + self.id_process)
                 path_adaptive = 'ABCurve' + string_gui + '.gjson'
 
-                element_ab_curve = ET.SubElement(element_tracks, 'ABCurve')
+                element_ab_curve = [x for x in element_tracks.findall('ABCurve')][0]
                 element_ab_curve.attrib['SourceNode'] = self.source_node
                 element_ab_curve.attrib['Name'] = name_ab_curve
                 element_ab_curve.attrib['TaggedEntity'] = self.id_field
