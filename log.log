@@ -112,3 +112,49 @@ INFO:root:Cas: 2026-02-03 20:56:01 - STOP
 INFO:root:====================
 INFO:root:Cas: 2026-02-03 21:06:49 - START
 INFO:root:Cas: 2026-02-03 21:06:49 - STOP
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 11:04:06 - START
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 11:04:34 - START
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 11:05:09 - START
+ERROR:root:An exception was thrown!
+Traceback (most recent call last):
+  File "C:\Users/Hadrien/AppData/Roaming/QGIS/QGIS3\profiles\default/python/plugins\QGIS_to_Deere\creating_Gen4.py", line 1114, in create_file
+    output_folder, output_log = gen4_from_shp.creat_setup_xml()
+  File "C:\Users/Hadrien/AppData/Roaming/QGIS/QGIS3\profiles\default/python/plugins\QGIS_to_Deere\creating_Gen4.py", line 466, in creat_setup_xml
+    create_element = CreateElement(self.json_input,
+  File "C:\Users/Hadrien/AppData/Roaming/QGIS/QGIS3\profiles\default/python/plugins\QGIS_to_Deere\creating_Gen4.py", line 725, in __init__
+    self.id_client = unique_id(client + id_process)
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'
+INFO:root:Cas: 2026-02-04 11:05:11 - STOP
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 11:06:20 - START
+ERROR:root:An exception was thrown!
+Traceback (most recent call last):
+  File "C:\Users/Hadrien/AppData/Roaming/QGIS/QGIS3\profiles\default/python/plugins\QGIS_to_Deere\creating_Gen4.py", line 1114, in create_file
+    output_folder, output_log = gen4_from_shp.creat_setup_xml()
+  File "C:\Users/Hadrien/AppData/Roaming/QGIS/QGIS3\profiles\default/python/plugins\QGIS_to_Deere\creating_Gen4.py", line 466, in creat_setup_xml
+    create_element = CreateElement(self.json_input,
+  File "C:\Users/Hadrien/AppData/Roaming/QGIS/QGIS3\profiles\default/python/plugins\QGIS_to_Deere\creating_Gen4.py", line 725, in __init__
+    self.id_client = unique_id(client + id_process)
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'
+INFO:root:Cas: 2026-02-04 11:06:20 - STOP
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 11:11:49 - START
+INFO:root:Cas: 2026-02-04 11:11:50 - STOP
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 11:17:08 - START
+INFO:root:Cas: 2026-02-04 11:17:08 - STOP
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 11:19:31 - START
+INFO:root:Cas: 2026-02-04 11:19:31 - STOP
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 11:22:56 - START
+INFO:root:Cas: 2026-02-04 11:22:56 - STOP
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 11:27:26 - START
+INFO:root:Cas: 2026-02-04 11:27:26 - STOP
+INFO:root:====================
+INFO:root:Cas: 2026-02-04 12:03:46 - START
+INFO:root:Cas: 2026-02-04 12:03:46 - STOP

@@ -457,7 +457,8 @@ class Gen4FromShp:
             create_element = CreateElement(self.json_input,
                                            self.metadata_element,
                                            client=x_row[self.client_column],
-                                           id_process=self.id_process)
+                                           id_process=self.id_process,
+                                           output_log=self.output_log)
             elm_setup = create_element.create_client(element=elm_setup)
 
         # Farm elements
@@ -467,7 +468,8 @@ class Gen4FromShp:
                                            self.metadata_element,
                                            client=x_row[self.client_column],
                                            farm=x_row[self.farm_column],
-                                           id_process=self.id_process)
+                                           id_process=self.id_process,
+                                           output_log=self.output_log)
             elm_setup = create_element.create_farm(element=elm_setup)
 
         gdf_first_select = self.gdf_fields[columns_select].groupby(self.field_column, as_index=False).first()
@@ -483,7 +485,8 @@ class Gen4FromShp:
                                            field=x_row[self.field_column],
                                            farm=x_row[self.farm_column],
                                            crop=x_row[self.crop_column],
-                                           id_process=self.id_process)
+                                           id_process=self.id_process,
+                                           output_log=self.output_log)
             # Field element
             elm_setup = create_element.create_field(element=elm_setup)
 
@@ -496,7 +499,9 @@ class Gen4FromShp:
 
             gdf_first_select.geometry = gdf_first_select.geometry.set_crs(4326)
             x_gdf_first_select = gdf_first_select.loc[gdf_first_select['index'] == x_row['index']]
-            x_gdf_line = gpd.overlay(df1=self.gdf_lines, df2=x_gdf_first_select, keep_geom_type=False)
+            # Select lines that intersect the field polygon but keep full (original) geometries
+            field_geom = x_gdf_first_select.geometry.unary_union
+            x_gdf_line = self.gdf_lines[self.gdf_lines.geometry.intersects(field_geom)].copy()
 
             x_gdf_line.geometry = x_gdf_line.geometry.to_crs(32633)
             x_gdf_line["length"] = x_gdf_line.geometry.length
@@ -718,8 +723,9 @@ class Gen4FromShp:
 
 class CreateElement(Gen4FromShp):
 
-    def __init__(self, json_input, metadata_element, client='', field='', farm='', crop='', id_process=''):
-        super().__init__(json_input=json_input, output_log=[])
+    def __init__(self, json_input, metadata_element, client='', field='', farm='', crop='', id_process='', output_log=None):
+        # Forward the main output_log list so child logging is visible in parent
+        super().__init__(json_input=json_input, output_log=output_log or [])
 
         self.client = client
         self.id_client = unique_id(client + id_process)
@@ -978,18 +984,30 @@ class CreateElement(Gen4FromShp):
 
         # AB Curve
         if bool_ABCurve and not gdf_ab_curve.empty:
+            # Debug: log AB curve count and IDs
+            try:
+                ab_ids = gdf_ab_curve['ID_line'].to_list()
+            except Exception:
+                ab_ids = []
+            self.output_log.append(my_print(f'{now_time(john_deere=False)} - AB curves detected: {gdf_ab_curve.shape[0]} - IDs: {ab_ids}'))
 
             # Each curve in its own Guidance/Tracks element and file
             for i in range(gdf_ab_curve.shape[0]):
-                name_ab_curve = f'ABCurve-{diacritic(gdf_ab_curve["ID_line"].iloc[i])}'
-                string_gui = unique_id(name_ab_curve + self.id_process)
+                raw_id = gdf_ab_curve["ID_line"].iloc[i]
+                display_name = diacritic(raw_id)
+                # Remove trailing numeric suffix like _1 if present
+                parts = display_name.rsplit('_', 1)
+                if len(parts) == 2 and parts[1].isdigit():
+                    display_name = parts[0]
+
+                string_gui = unique_id(display_name + self.id_process)
                 path_adaptive = 'ABCurve' + string_gui + '.gjson'
 
                 # Create a new ABCurve element for each line
                 element_ab_curve = [x for x in element_tracks.findall('ABCurve')][0]
                 element_ab_curve = deepcopy(element_ab_curve)
                 element_ab_curve.attrib['SourceNode'] = self.source_node
-                element_ab_curve.attrib['Name'] = name_ab_curve
+                element_ab_curve.attrib['Name'] = display_name
                 element_ab_curve.attrib['TaggedEntity'] = self.id_field
                 element_ab_curve.attrib['SourceSystemClientId'] = self.id_field
                 element_ab_curve.attrib['StringGuid'] = string_gui
@@ -1020,6 +1038,7 @@ class CreateElement(Gen4FromShp):
 
                 # Create Adaptive Line to json for each curve
                 super().create_geojson_ab_curve(dict_output['ABCurve'], gdf_ab_curve.iloc[[i]])
+                self.output_log.append(my_print(f'{now_time(john_deere=False)} - Wrote AB curve file: {dict_output["ABCurve"]}'))
 
         else:
             pass
